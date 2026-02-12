@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skyscraper Puzzle Solver</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #121212;
+            color: #fff;
+            font-size: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        input {
+            margin: 5px;
+            background-color: transparent;
+            border: 1px solid #fff;
+            padding: 4px;
+            color: #fff;
+            font-size: 2rem;
+            width: 14rem;
+        }
+
+        button {
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        #output {
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 2rem;
+        }
+        
+        #gridSize {
+            width: 4rem;
+        }
+
+        #container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 2rem;
+        }
+
+        #puzzle {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            body, input, #output {
+                font-size: 1rem;
+            }
+
+            h1 {
+                font-size: 1.65rem;
+                text-align: center;
+            }
+
+            #puzzle {
+                flex-direction: column-reverse;
+            }
+
+            img {
+                width: 50%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Skyscraper Puzzle Solver</h1>
+    <div id="container">
+        <div id="puzzle">
+            <form id="puzzleForm">
+                <label for="gridSize">Grid Size N (e.g., 5 for 5x5):</label>
+                <input type="number" id="gridSize" min="1" required value="3"><br>
+
+                <label for="topClues">Top Clues (space-separated numbers):</label>
+                <input type="text" id="topClues" required><br>
+
+                <label for="bottomClues">Bottom Clues (space-separated numbers):</label>
+                <input type="text" id="bottomClues" required><br>
+
+                <label for="leftClues">Left Clues (space-separated numbers):</label>
+                <input type="text" id="leftClues" required><br>
+
+                <label for="rightClues">Right Clues (space-separated numbers):</label>
+                <input type="text" id="rightClues" required><br>
+
+                <button type="submit">Solve Puzzle</button>
+            </form>
+            <img src="./sample-box.png" />
+        </div>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        // Function to check if a row satisfies the left and right clues
+        function checkRowVisibility(row, leftClue, rightClue) {
+            const N = row.length;
+            // Check left visibility
+            let maxHeight = 0;
+            let visible = 0;
+            for (let height of row) {
+                if (height > maxHeight) {
+                    maxHeight = height;
+                    visible++;
+                }
+            }
+            if (visible !== leftClue) return false;
+
+            // Check right visibility
+            maxHeight = 0;
+            visible = 0;
+            for (let i = N - 1; i >= 0; i--) {
+                if (row[i] > maxHeight) {
+                    maxHeight = row[i];
+                    visible++;
+                }
+            }
+            if (visible !== rightClue) return false;
+
+            return true;
+        }
+
+        // Function to check column visibility for top and bottom
+        function checkColumnVisibility(grid, col, topClue, bottomClue) {
+            const N = grid.length;
+            const column = [];
+            for (let i = 0; i < N; i++) {
+                column.push(grid[i][col]);
+            }
+
+            // Check top visibility
+            let maxHeight = 0;
+            let visible = 0;
+            for (let height of column) {
+                if (height > maxHeight) {
+                    maxHeight = height;
+                    visible++;
+                }
+            }
+            if (visible !== topClue) return false;
+
+            // Check bottom visibility
+            maxHeight = 0;
+            visible = 0;
+            for (let i = N - 1; i >= 0; i--) {
+                if (column[i] > maxHeight) {
+                    maxHeight = column[i];
+                    visible++;
+                }
+            }
+            if (visible !== bottomClue) return false;
+
+            return true;
+        }
+
+        // Function to generate all permutations of an array
+        function permutations(arr) {
+            if (arr.length === 0) return [[]];
+            const result = [];
+            for (let i = 0; i < arr.length; i++) {
+                const rest = arr.slice(0, i).concat(arr.slice(i + 1));
+                const perms = permutations(rest);
+                for (let perm of perms) {
+                    result.push([arr[i], ...perm]);
+                }
+            }
+            return result;
+        }
+
+        // Backtracking function to fill the grid
+        function solve(grid, row, topClues, bottomClues, leftClues, rightClues) {
+            const N = grid.length;
+            if (row === N) {
+                // Check all column visibilities
+                for (let col = 0; col < N; col++) {
+                    if (!checkColumnVisibility(grid, col, topClues[col], bottomClues[col])) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            // Try all permutations for the row
+            const nums = Array.from({ length: N }, (_, i) => i + 1);
+            const perms = permutations(nums);
+            for (let perm of perms) {
+                // Check row visibility
+                if (checkRowVisibility(perm, leftClues[row], rightClues[row])) {
+                    // Check for column conflicts with previous rows
+                    let conflict = false;
+                    for (let c = 0; c < N; c++) {
+                        for (let r = 0; r < row; r++) {
+                            if (grid[r][c] === perm[c]) {
+                                conflict = true;
+                                break;
+                            }
+                        }
+                        if (conflict) break;
+                    }
+                    if (!conflict) {
+                        // Place the row
+                        grid[row] = [...perm];
+                        if (solve(grid, row + 1, topClues, bottomClues, leftClues, rightClues)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        // Handle form submission
+        document.getElementById('puzzleForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const N = parseInt(document.getElementById('gridSize').value);
+            if (isNaN(N) || N < 1) {
+                document.getElementById('output').textContent = "Error: N must be a positive integer.";
+                return;
+            }
+
+            const topClues = document.getElementById('topClues').value.split(' ').map(Number);
+            const bottomClues = document.getElementById('bottomClues').value.split(' ').map(Number);
+            const leftClues = document.getElementById('leftClues').value.split(' ').map(Number);
+            const rightClues = document.getElementById('rightClues').value.split(' ').map(Number);
+
+            if (topClues.length !== N || bottomClues.length !== N || leftClues.length !== N || rightClues.length !== N ||
+                topClues.some(isNaN) || bottomClues.some(isNaN) || leftClues.some(isNaN) || rightClues.some(isNaN)) {
+                document.getElementById('output').textContent = `Error: Each clue set must have exactly ${N} valid numbers.`;
+                return;
+            }
+
+            // Initialize grid
+            const grid = Array.from({ length: N }, () => Array(N).fill(0));
+
+            // Solve the puzzle
+            if (solve(grid, 0, topClues, bottomClues, leftClues, rightClues)) {
+                let output = "Solution found:\n";
+                grid.forEach(row => output += row.join(' ') + '\n');
+                document.getElementById('output').textContent = output;
+            } else {
+                document.getElementById('output').textContent = "No solution found.";
+            }
+        });
+    </script>
+</body>
+
+</html>
