@@ -237,10 +237,10 @@
                 return;
             }
 
-            const topClues = document.getElementById('topClues').value.split(' ').map(Number);
-            const bottomClues = document.getElementById('bottomClues').value.split(' ').map(Number);
-            const leftClues = document.getElementById('leftClues').value.split(' ').map(Number);
-            const rightClues = document.getElementById('rightClues').value.split(' ').map(Number);
+            const topClues = document.getElementById('topClues').value.split('').map(Number);
+            const bottomClues = document.getElementById('bottomClues').value.split('').map(Number);
+            const leftClues = document.getElementById('leftClues').value.split('').map(Number);
+            const rightClues = document.getElementById('rightClues').value.split('').map(Number);
 
             if (topClues.length !== N || bottomClues.length !== N || leftClues.length !== N || rightClues.length !== N ||
                 topClues.some(isNaN) || bottomClues.some(isNaN) || leftClues.some(isNaN) || rightClues.some(isNaN)) {
