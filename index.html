@@ -18,7 +18,7 @@
             align-items: center;
         }
 
-        input {
+        input, select {
             margin: 5px;
             background-color: transparent;
             border: 1px solid #fff;
@@ -26,6 +26,10 @@
             color: #fff;
             font-size: 2rem;
             width: 14rem;
+        }
+
+        option {
+            color: #000;
         }
 
         button {
@@ -87,7 +91,12 @@
         <div id="puzzle">
             <form id="puzzleForm">
                 <label for="gridSize">Grid Size N (e.g., 5 for 5x5):</label>
-                <input type="number" id="gridSize" min="1" required value="3"><br>
+                <!-- <input type="number" id="gridSize" min="1" required value="3"> -->
+                <select id="gridSize">
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select><br>
 
                 <label for="topClues">TOP Clues (without spaces):</label>
                 <input type="text" id="topClues" required><br>
@@ -260,6 +269,13 @@
             } else {
                 document.getElementById('result').textContent = "No solution found.";
             }
+        });
+
+        document.getElementById('gridSize').addEventListener('change', function (event) {
+            document.getElementById('topClues').value = '';
+            document.getElementById('bottomClues').value = '';
+            document.getElementById('leftClues').value = '';
+            document.getElementById('rightClues').value = '';
         });
     </script>
 </body>
