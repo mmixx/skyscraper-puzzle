@@ -71,9 +71,17 @@
             gap: 8px;
         }
 
+        .info {
+            font-size: 1rem;
+            color: #f00;
+            text-align: center;
+            justify-content: center !important;
+            margin: 10px 0;
+        }
+
         @media (max-width: 768px) {
-            body, input, #output {
-                font-size: 1rem;
+            body, input, select {
+                font-size: 1.25rem;
             }
 
             h1 {
@@ -85,8 +93,24 @@
                 flex-direction: column-reverse;
             }
 
+            #output {
+                font-size: 1.5rem;
+            }
+
             img {
                 width: 50%;
+            }
+
+            input {
+                width: 10rem;
+            }
+
+            #puzzleForm div {
+                gap: 1rem;
+            }
+
+            #result {
+                margin-left: 14px;
             }
         }
     </style>
@@ -108,24 +132,25 @@
                 </div>
 
                 <div>
-                    <label for="topClues">TOP Clues (without spaces):</label>
+                    <label for="topClues">TOP Clues:</label>
                     <input type="text" id="topClues" autocomplete="off" required>
                 </div>
 
                 <div>
-                    <label for="rightClues">RIGHT Clues (without spaces):</label>
+                    <label for="rightClues">RIGHT Clues:</label>
                     <input type="text" id="rightClues" autocomplete="off" required>
                 </div>
 
                 <div>
-                    <label for="leftClues">LEFT Clues (without spaces):</label>
+                    <label for="leftClues">LEFT Clues:</label>
                     <input type="text" id="leftClues" autocomplete="off" required>
                 </div>
 
                 <div>
-                    <label for="bottomClues">BOTTOM Clues (without spaces):</label>
+                    <label for="bottomClues">BOTTOM Clues:</label>
                     <input type="text" id="bottomClues" autocomplete="off" required>
                 </div>
+                <div class="info">* Input the clues without spaces</div>
                 <button type="submit">Solve Puzzle</button>
             </form>
             <img src="./sample-box.png" />
